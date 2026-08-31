@@ -326,11 +326,11 @@ html, body {
 
 /* -------------------- 5. GAME HUD & COMBO -------------------- */
 .game-hud {
-  padding: 8px 14px;
+  padding: 8px 12px;
   display: grid;
-  grid-template-columns: 1fr 1.2fr 1fr;
+  grid-template-columns: 0.9fr 0.9fr 1.2fr 0.9fr;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .hud-item {
@@ -340,6 +340,39 @@ html, body {
 
 .score-box {
   align-items: flex-start;
+}
+
+.lives-box {
+  align-items: center;
+}
+
+.lives-hearts {
+  display: flex;
+  gap: 3px;
+  margin-top: 2px;
+}
+
+.heart {
+  font-size: 1.05rem;
+  transition: transform var(--transition-bounce), filter var(--transition-fast), opacity var(--transition-fast);
+  filter: drop-shadow(0 0 6px rgba(255, 51, 102, 0.6));
+  display: inline-block;
+}
+
+.heart.lost {
+  opacity: 0.25;
+  filter: grayscale(1);
+  transform: scale(0.85);
+}
+
+.heart.pop {
+  animation: heartBreak 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes heartBreak {
+  0% { transform: scale(1.4); }
+  50% { transform: scale(0.7) rotate(15deg); }
+  100% { transform: scale(0.85); }
 }
 
 .highscore-box {

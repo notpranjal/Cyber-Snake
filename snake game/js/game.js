@@ -78,6 +78,12 @@ class SnakeGame {
     this.timeSurvived = 0;
     this.frenzyTimeRemaining = 60; // 60s for Frenzy mode
 
+    // Revives & Invulnerability Shield
+    this.maxRevives = 3;
+    this.revivesLeft = 3;
+    this.isInvulnerable = false;
+    this.invulnerabilityTimer = 0;
+
     // Tick Timing
     this.tickInterval = 0.12; // Base seconds per step
     this.timeSinceLastTick = 0;
@@ -158,6 +164,10 @@ class SnakeGame {
     this.maxComboReached = 1.0;
     this.timeSurvived = 0;
     this.frenzyTimeRemaining = 60;
+
+    this.revivesLeft = 3;
+    this.isInvulnerable = false;
+    this.invulnerabilityTimer = 0;
 
     this.activePowerups = {};
     this.powerup = null;
@@ -256,9 +266,10 @@ class SnakeGame {
     let newY = head.y + this.direction.y;
 
     const isGhostActive = Boolean(this.activePowerups['ghost']);
+    const isProtected = isGhostActive || this.isInvulnerable;
 
     // Handle Wall Collisions & Wrap-around
-    if (!this.wallCollisions || isGhostActive) {
+    if (!this.wallCollisions || isProtected) {
       if (newX < 0) newX = this.gridSize - 1;
       else if (newX >= this.gridSize) newX = 0;
 
@@ -266,16 +277,16 @@ class SnakeGame {
       else if (newY >= this.gridSize) newY = 0;
     } else {
       if (newX < 0 || newX >= this.gridSize || newY < 0 || newY >= this.gridSize) {
-        this.triggerGameOver('Hit the wall boundary!');
+        this.handleFatalCollision('Hit the wall boundary!');
         return;
       }
     }
 
-    // Check Self Collision (unless Ghost mode active)
-    if (!isGhostActive) {
+    // Check Self Collision (unless Ghost mode or Invulnerable shield active)
+    if (!isProtected) {
       for (let i = 0; i < this.snake.length - 1; i++) {
         if (this.snake[i].x === newX && this.snake[i].y === newY) {
-          this.triggerGameOver('Ran into your own tail!');
+          this.handleFatalCollision('Ran into your own tail!');
           return;
         }
       }
@@ -425,6 +436,15 @@ class SnakeGame {
       }
     }
 
+    // Invulnerability Shield Countdown
+    if (this.isInvulnerable) {
+      this.invulnerabilityTimer -= dt;
+      if (this.invulnerabilityTimer <= 0) {
+        this.isInvulnerable = false;
+        this.invulnerabilityTimer = 0;
+      }
+    }
+
     // Calculate current effective step interval (Ice berry slows movement by 40%)
     let currentInterval = this.tickInterval;
     if (this.activePowerups['ice']) {
@@ -445,6 +465,55 @@ class SnakeGame {
         (tail.x + 0.5) * this.cellSize,
         (tail.y + 0.5) * this.cellSize
       );
+    }
+  }
+
+  /**
+   * Resolves collision: uses a revive if available, otherwise triggers game over
+   */
+  handleFatalCollision(reason = '') {
+    if (this.revivesLeft > 0) {
+      this.revivesLeft--;
+      this.triggerRevive();
+    } else {
+      this.triggerGameOver(reason);
+    }
+  }
+
+  /**
+   * Grants invulnerability shield, plays sound & particles, and updates HUD
+   */
+  triggerRevive() {
+    this.isInvulnerable = true;
+    this.invulnerabilityTimer = 3.0; // 3 seconds shield grace period
+
+    window.soundEngine.playLifeLost();
+    setTimeout(() => {
+      if (window.soundEngine) window.soundEngine.playRevive();
+    }, 150);
+
+    const head = this.snake[0];
+    const worldX = (head.x + 0.5) * this.cellSize;
+    const worldY = (head.y + 0.5) * this.cellSize;
+
+    // Revive VFX bursts
+    window.particleSystem.createFoodExplosion(worldX, worldY, '#ff007f', 24);
+    window.particleSystem.createFoodExplosion(worldX, worldY, '#ffd000', 16);
+
+    const leftText = this.revivesLeft > 0 ? `${this.revivesLeft} Left` : `Last Life!`;
+    window.particleSystem.addFloatingText(`💖 REVIVED! (${leftText})`, worldX, worldY - 20, '#ff3366', 15);
+
+    // Screen Shake feedback
+    const wrapper = document.getElementById('canvas-wrapper');
+    if (wrapper && window.uiManager?.settings.screenShake) {
+      wrapper.classList.remove('screen-shake');
+      void wrapper.offsetWidth;
+      wrapper.classList.add('screen-shake');
+    }
+
+    if (window.uiManager) {
+      window.uiManager.updateHUD();
+      window.uiManager.showToast('Snake Revived!', `Shield active for 3s! (${this.revivesLeft} revives left)`, '💖');
     }
   }
 
@@ -599,6 +668,9 @@ class SnakeGame {
     ctx.save();
     if (isGhostActive) {
       ctx.globalAlpha = 0.65;
+    } else if (this.isInvulnerable) {
+      const blink = Math.floor(this.animTime * 14) % 2 === 0;
+      ctx.globalAlpha = blink ? 0.4 : 1.0;
     }
 
     // 1. Draw Body Segments (Connected Smooth Capsule Curves)

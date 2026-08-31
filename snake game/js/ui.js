@@ -32,6 +32,7 @@ class UIManager {
     // HUD Elements
     this.scoreDisplay = document.getElementById('score-display');
     this.highscoreDisplay = document.getElementById('highscore-display');
+    this.livesHearts = document.getElementById('lives-hearts');
     this.comboMultiplier = document.getElementById('combo-multiplier');
     this.comboMeterFill = document.getElementById('combo-meter-fill');
     this.powerupStatusBar = document.getElementById('powerup-status-bar');
@@ -415,10 +416,27 @@ class UIManager {
       this.highscoreDisplay.textContent = currentHigh;
     }
 
-    if (!game) return;
-
     if (this.scoreDisplay) {
       this.scoreDisplay.textContent = game.score;
+    }
+
+    // Revives / Hearts display
+    if (this.livesHearts) {
+      const hearts = this.livesHearts.querySelectorAll('.heart');
+      hearts.forEach((h, index) => {
+        const heartNum = index + 1; // 1, 2, 3
+        const isAlive = heartNum <= game.revivesLeft;
+        if (isAlive) {
+          h.classList.remove('lost');
+          h.textContent = '❤️';
+        } else {
+          if (!h.classList.contains('lost')) {
+            h.classList.add('lost', 'pop');
+            setTimeout(() => h.classList.remove('pop'), 400);
+          }
+          h.textContent = '🖤';
+        }
+      });
     }
 
     // Combo bar
