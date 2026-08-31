@@ -1,24 +1,41 @@
 # 🐍 Cyber Snake — Next-Gen Arcade Game
 
 <p align="center">
+  <a href="https://cyber-snake-rho.vercel.app" target="_blank">
+    <img src="https://img.shields.io/badge/PLAY%20LIVE%20DEMO-cyber--snake--rho.vercel.app-00f3ff?style=for-the-badge&logo=vercel&logoColor=black" alt="Play Live on Vercel">
+  </a>
   <img src="https://img.shields.io/badge/HTML5-Canvas%202D-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5">
   <img src="https://img.shields.io/badge/CSS3-Glassmorphism%20%26%20Themes-1572B6?style=for-the-badge&logo=css3&logoColor=white" alt="CSS3">
   <img src="https://img.shields.io/badge/JavaScript-Vanilla%20ES6+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript">
   <img src="https://img.shields.io/badge/Audio-Web%20Audio%20API-9B51E0?style=for-the-badge" alt="Web Audio API">
-  <img src="https://img.shields.io/badge/Platform-Desktop%20%2F%20Mobile-00f3ff?style=for-the-badge" alt="Cross-Platform">
+  <img src="https://img.shields.io/badge/Platform-Desktop%20%2F%20Mobile-00ff88?style=for-the-badge" alt="Cross-Platform">
 </p>
 
-A modern, responsive, and feature-packed reimagining of the classic Snake arcade game. Built with pure **HTML5 Canvas**, modern **CSS Glassmorphism**, and **Vanilla JavaScript**, featuring zero external dependencies and synthesized real-time sound effects via the **Web Audio API**.
+<p align="center">
+  🎮 <strong><a href="https://cyber-snake-rho.vercel.app">Click Here to Play Cyber Snake Live on Vercel</a></strong> 🕹️
+</p>
+
+A modern, responsive, and feature-packed reimagining of the classic Snake arcade game. Built with pure **HTML5 Canvas**, modern **CSS Glassmorphism**, and **Vanilla JavaScript**, featuring zero external dependencies, 3-Revives life system, 2-Player battle mode, and real-time synthesized procedural sound effects via the **Web Audio API**.
+
+---
+
+## 🌐 Live Deployment
+
+- 🚀 **Live Game URL**: **[https://cyber-snake-rho.vercel.app](https://cyber-snake-rho.vercel.app)**
+- ⚡ **Deployment Platform**: Vercel
+- 📦 **GitHub Repository**: **[https://github.com/notpranjal/Cyber-Snake](https://github.com/notpranjal/Cyber-Snake)**
 
 ---
 
 ## 🌟 Key Highlights
 
 - 🎨 **5 Curated Color Themes**: Switch instantly between *Cyber Neon*, *Sunset Glow*, *Emerald Zen*, *Midnight Dark*, and *8-Bit Retro*.
-- 🕹️ **3 Game Modes**:
+- 🕹️ **4 Game Modes**:
   - **Classic**: Pure snake experience with progressive speed growth.
   - **Arcade Power**: Collect power-ups like *Golden Apples*, *Ice Berries (Slow-Mo)*, *Ghost Peppers (Pass-thru)*, and *Star Multipliers*.
   - **Frenzy 60s**: 60-second time attack where food adds bonus seconds to the clock!
+  - **⚔️ 2-Player Battle (Local 1v1)**: Two players on a **single keyboard**! P1 (Cyan Snake) uses `W A S D` and P2 (Magenta Snake) uses `Arrow Keys` with 3 revives each.
+- 💖 **3-Revives Life System**: 3 lives (`❤️❤️❤️`) per run with temporary 3-second invulnerability shield upon collision.
 - 🔊 **Zero-Asset Procedural Audio**: Dynamic pitch-scaled sound effects synthesized entirely in code using the browser's Web Audio API.
 - ✨ **High-Polish Visual FX ("Game Juice")**:
   - Expressive animated eyes tracking movement direction.
@@ -65,13 +82,16 @@ A modern, responsive, and feature-packed reimagining of the classic Snake arcade
 
 ---
 
-## 🚀 Quick Start
+## 🚀 How to Play
 
-### Method 1: Double-Click Launcher (Windows)
+### 🌐 Method 1: Play in Browser (Online)
+Visit **[https://cyber-snake-rho.vercel.app](https://cyber-snake-rho.vercel.app)**.
+
+### 💻 Method 2: Double-Click Launcher (Windows Local)
 Double-click `start.bat` in the project folder to open the game in your default browser.
 
-### Method 2: Open Directly in Browser
-Open `snake game/index.html` in any web browser (Chrome, Edge, Firefox, Safari, Brave).
+### 📂 Method 3: Open File Directly
+Open `index.html` in any modern web browser (Chrome, Edge, Firefox, Safari, Brave).
 
 ---
 
@@ -79,18 +99,18 @@ Open `snake game/index.html` in any web browser (Chrome, Edge, Firefox, Safari, 
 
 ```
 .
+├── index.html              # Root entry point for Vercel deployment
+├── styles.css              # Glassmorphism design system & theme variables
 ├── start.bat               # Windows one-click game launcher
-├── README.md               # Game documentation & guide
-└── snake game/
-    ├── index.html          # Semantic layout, HUD, modals & touch D-pad
-    ├── styles.css          # Glassmorphism design system & theme variables
-    ├── start.bat           # Subfolder launcher
-    └── js/
-        ├── audio.js        # Web Audio API sound synthesizer
-        ├── particles.js    # VFX particles & floating score text engine
-        ├── game.js         # Core snake engine, physics & power-ups
-        ├── ui.js           # UI state manager, modals, achievements & storage
-        └── main.js         # Game loop & input controllers
+├── vercel.json             # Vercel configuration
+├── README.md               # Game documentation & live links
+├── js/
+│   ├── audio.js            # Web Audio API sound synthesizer
+│   ├── particles.js        # VFX particles & floating score text engine
+│   ├── game.js             # Core snake engine, physics & power-ups
+│   ├── ui.js               # UI state manager, modals, achievements & storage
+│   └── main.js             # Game loop & input controllers
+└── snake game/             # Subfolder package
 ```
 
 ---
@@ -98,8 +118,9 @@ Open `snake game/index.html` in any web browser (Chrome, Edge, Firefox, Safari, 
 ## 🛠️ Technology Stack
 
 - **Frontend**: HTML5 Canvas API, CSS3 Modern Features (Grid, Flexbox, Backdrop-filter, CSS Variables).
-- **Logic**: Vanilla JavaScript ES6+ (No external runtime frameworks or bloated dependencies).
-- **Audio**: Web Audio API (Synthesizers for oscillators and gain envelopes).
+- **Logic**: Vanilla JavaScript ES6+ (Zero dependencies).
+- **Audio**: Web Audio API (Synthesized oscillators and gain nodes).
+- **Deployment**: Vercel + GitHub Continuous Deployment.
 - **Storage**: Browser `localStorage` API.
 
 ---
