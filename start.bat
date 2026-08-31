@@ -10,9 +10,7 @@ echo.
 
 cd /d "%~dp0"
 
-if exist "snake game\index.html" (
-    start "" "snake game\index.html"
-) else if exist "index.html" (
+if exist "index.html" (
     start "" "index.html"
 ) else (
     echo [ERROR] index.html not found!
