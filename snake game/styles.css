@@ -459,6 +459,92 @@ html, body {
   transition: width 0.08s linear;
 }
 
+/* -------------------- 5B. MULTIPLAYER 2-PLAYER HUD -------------------- */
+.game-hud.hidden {
+  display: none !important;
+}
+
+.game-hud.multi-hud {
+  grid-template-columns: 1fr auto 1fr;
+  padding: 6px 12px;
+}
+
+.hud-player-box {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hud-player-box.p1-hud {
+  align-items: flex-start;
+}
+
+.hud-player-box.p2-hud {
+  align-items: flex-end;
+}
+
+.player-tag {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.5px;
+}
+
+.p1-tag {
+  color: #00f3ff;
+  background: rgba(0, 243, 255, 0.15);
+  border: 1px solid rgba(0, 243, 255, 0.4);
+  box-shadow: 0 0 8px rgba(0, 243, 255, 0.25);
+}
+
+.p2-tag {
+  color: #ff007f;
+  background: rgba(255, 0, 127, 0.15);
+  border: 1px solid rgba(255, 0, 127, 0.4);
+  box-shadow: 0 0 8px rgba(255, 0, 127, 0.25);
+}
+
+.p-score-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.p-score {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.p1-hud .p-score {
+  color: #00f3ff;
+  text-shadow: 0 0 8px rgba(0, 243, 255, 0.35);
+}
+
+.p2-hud .p-score {
+  color: #ff007f;
+  text-shadow: 0 0 8px rgba(255, 0, 127, 0.35);
+}
+
+.lives-hearts.small .heart {
+  font-size: 0.85rem;
+}
+
+.hud-vs-badge {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: var(--color-warning);
+  background: rgba(255, 208, 0, 0.15);
+  border: 1px solid rgba(255, 208, 0, 0.4);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  text-shadow: 0 0 8px rgba(255, 208, 0, 0.6);
+  letter-spacing: 1px;
+}
+
 /* -------------------- 6. POWER-UP STATUS BAR -------------------- */
 .powerup-status-bar {
   display: flex;

@@ -79,32 +79,75 @@ window.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // Directional Controls (WASD & Arrow Keys)
-    switch (e.key) {
-      case 'ArrowUp':
-      case 'w':
-      case 'W':
-        game.changeDirection({ x: 0, y: -1 });
-        highlightDpad('dpad-up');
-        break;
-      case 'ArrowDown':
-      case 's':
-      case 'S':
-        game.changeDirection({ x: 0, y: 1 });
-        highlightDpad('dpad-down');
-        break;
-      case 'ArrowLeft':
-      case 'a':
-      case 'A':
-        game.changeDirection({ x: -1, y: 0 });
-        highlightDpad('dpad-left');
-        break;
-      case 'ArrowRight':
-      case 'd':
-      case 'D':
-        game.changeDirection({ x: 1, y: 0 });
-        highlightDpad('dpad-right');
-        break;
+    // Directional Controls (WASD for P1, Arrow Keys for P2 in Multiplayer)
+    if (game.mode === 'multiplayer') {
+      // Player 1 (WASD)
+      switch (e.key) {
+        case 'w':
+        case 'W':
+          game.changeDirectionP1({ x: 0, y: -1 });
+          highlightDpad('dpad-up');
+          break;
+        case 's':
+        case 'S':
+          game.changeDirectionP1({ x: 0, y: 1 });
+          highlightDpad('dpad-down');
+          break;
+        case 'a':
+        case 'A':
+          game.changeDirectionP1({ x: -1, y: 0 });
+          highlightDpad('dpad-left');
+          break;
+        case 'd':
+        case 'D':
+          game.changeDirectionP1({ x: 1, y: 0 });
+          highlightDpad('dpad-right');
+          break;
+      }
+
+      // Player 2 (Arrow Keys)
+      switch (e.key) {
+        case 'ArrowUp':
+          game.changeDirectionP2({ x: 0, y: -1 });
+          break;
+        case 'ArrowDown':
+          game.changeDirectionP2({ x: 0, y: 1 });
+          break;
+        case 'ArrowLeft':
+          game.changeDirectionP2({ x: -1, y: 0 });
+          break;
+        case 'ArrowRight':
+          game.changeDirectionP2({ x: 1, y: 0 });
+          break;
+      }
+    } else {
+      // Single Player Mode (Both WASD & Arrow Keys steer the snake)
+      switch (e.key) {
+        case 'ArrowUp':
+        case 'w':
+        case 'W':
+          game.changeDirection({ x: 0, y: -1 });
+          highlightDpad('dpad-up');
+          break;
+        case 'ArrowDown':
+        case 's':
+        case 'S':
+          game.changeDirection({ x: 0, y: 1 });
+          highlightDpad('dpad-down');
+          break;
+        case 'ArrowLeft':
+        case 'a':
+        case 'A':
+          game.changeDirection({ x: -1, y: 0 });
+          highlightDpad('dpad-left');
+          break;
+        case 'ArrowRight':
+        case 'd':
+        case 'D':
+          game.changeDirection({ x: 1, y: 0 });
+          highlightDpad('dpad-right');
+          break;
+      }
     }
   });
 

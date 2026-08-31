@@ -1,5 +1,5 @@
 /**
- * UI & State Manager for Cyber Snake
+ * UI & State Manager for Cyber Snake (Single Player & 2-Player Versus)
  * Handles HUD updates, modals, achievements, toast notifications, themes, and persistence.
  */
 
@@ -22,14 +22,15 @@ class UIManager {
     this.unlockedAchievements = this.loadAchievements();
     this.stats = this.loadStats();
 
-    this.cachedElements = {};
     this.initDOM();
     this.applySettings();
     this.renderAchievementsList();
   }
 
   initDOM() {
-    // HUD Elements
+    // HUD Elements - Single Player
+    this.singlePlayerHud = document.getElementById('single-player-hud');
+    this.multiplayerHud = document.getElementById('multiplayer-hud');
     this.scoreDisplay = document.getElementById('score-display');
     this.highscoreDisplay = document.getElementById('highscore-display');
     this.livesHearts = document.getElementById('lives-hearts');
@@ -37,6 +38,13 @@ class UIManager {
     this.comboMeterFill = document.getElementById('combo-meter-fill');
     this.powerupStatusBar = document.getElementById('powerup-status-bar');
     this.currentModeTag = document.getElementById('current-mode-tag');
+
+    // HUD Elements - Multiplayer
+    this.p1ScoreDisplay = document.getElementById('p1-score-display');
+    this.p2ScoreDisplay = document.getElementById('p2-score-display');
+    this.p1LivesHearts = document.getElementById('p1-lives-hearts');
+    this.p2LivesHearts = document.getElementById('p2-lives-hearts');
+    this.keyboardHints = document.getElementById('keyboard-hints');
 
     // Modals
     this.modalStart = document.getElementById('modal-start');
@@ -80,7 +88,7 @@ class UIManager {
 
   loadHighScores() {
     const saved = localStorage.getItem(this.storagePrefix + 'highscores');
-    const defaults = { classic: 0, arcade: 0, frenzy: 0 };
+    const defaults = { classic: 0, arcade: 0, frenzy: 0, multiplayer: 0 };
     if (saved) {
       try { return { ...defaults, ...JSON.parse(saved) }; } catch (e) { }
     }
@@ -166,7 +174,6 @@ class UIManager {
   }
 
   bindEvents() {
-    // Sound Toggle in Header
     this.soundToggleBtn.addEventListener('click', () => {
       this.settings.sound = !this.settings.sound;
       window.soundEngine.setEnabled(this.settings.sound);
@@ -175,7 +182,6 @@ class UIManager {
       window.soundEngine.playClick();
     });
 
-    // Header Modals Openers
     document.getElementById('btn-open-settings').addEventListener('click', () => {
       this.openModal(this.modalSettings);
     });
@@ -187,7 +193,6 @@ class UIManager {
       this.openModal(this.modalHelp);
     });
 
-    // Close Modal Buttons
     document.querySelectorAll('.close-modal-btn, [data-close]').forEach(btn => {
       btn.addEventListener('click', () => {
         const modalId = btn.dataset.close;
@@ -197,26 +202,24 @@ class UIManager {
       });
     });
 
-    // Mode Selector in Start Modal
+    // Mode Selection
     document.querySelectorAll('.mode-card').forEach(card => {
       card.addEventListener('click', () => {
         document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
         card.classList.add('active');
         const mode = card.dataset.mode;
         if (window.game) window.game.setMode(mode);
-        this.currentModeTag.textContent = mode.toUpperCase();
+        this.currentModeTag.textContent = mode === 'multiplayer' ? '2-PLAYER BATTLE' : mode.toUpperCase();
         this.updateHUD();
         window.soundEngine.playClick();
       });
     });
 
-    // Start Game Button
     document.getElementById('btn-start-game').addEventListener('click', () => {
       this.closeModal(this.modalStart);
       this.startCountdownAndPlay();
     });
 
-    // Pause Modal Buttons
     document.getElementById('btn-resume-game').addEventListener('click', () => {
       this.closeModal(this.modalPause);
       if (window.game) window.game.isPaused = false;
@@ -233,12 +236,10 @@ class UIManager {
       window.soundEngine.playClick();
     });
 
-    // Quick Pause In-Game Button
     document.getElementById('btn-quick-pause').addEventListener('click', () => {
       this.togglePause();
     });
 
-    // Game Over Buttons
     document.getElementById('btn-play-again').addEventListener('click', () => {
       this.closeModal(this.modalGameOver);
       this.startCountdownAndPlay();
@@ -249,7 +250,6 @@ class UIManager {
       window.soundEngine.playClick();
     });
 
-    // Settings Theme Buttons
     document.querySelectorAll('.theme-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         this.settings.theme = btn.dataset.theme;
@@ -259,7 +259,6 @@ class UIManager {
       });
     });
 
-    // Speed Preset Buttons
     document.querySelectorAll('.seg-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         this.settings.speed = btn.dataset.speed;
@@ -269,7 +268,6 @@ class UIManager {
       });
     });
 
-    // Grid Preset Buttons
     document.querySelectorAll('.grid-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         this.settings.gridSize = parseInt(btn.dataset.grid, 10);
@@ -279,7 +277,6 @@ class UIManager {
       });
     });
 
-    // Setting Checkbox Toggles
     const toggleWalls = document.getElementById('toggle-walls');
     if (toggleWalls) {
       toggleWalls.addEventListener('change', (e) => {
@@ -324,20 +321,18 @@ class UIManager {
       });
     }
 
-    // Reset Data Button
     document.getElementById('btn-reset-data').addEventListener('click', () => {
       if (confirm('Are you sure you want to reset all high scores and achievements?')) {
-        this.highScores = { classic: 0, arcade: 0, frenzy: 0 };
+        this.highScores = { classic: 0, arcade: 0, frenzy: 0, multiplayer: 0 };
         this.unlockedAchievements = [];
         this.saveHighScores();
         this.saveAchievements();
         this.updateHUD();
         this.renderAchievementsList();
-        this.showToast('Data Reset', 'All high scores and records cleared.', '🗑️');
+        this.showToast('Data Reset', 'All high scores cleared.', '🗑️');
       }
     });
 
-    // Touch Action Buttons
     const touchPause = document.getElementById('touch-btn-pause');
     if (touchPause) touchPause.addEventListener('click', () => this.togglePause());
 
@@ -365,7 +360,9 @@ class UIManager {
 
     window.game.isPaused = !window.game.isPaused;
     if (window.game.isPaused) {
-      document.getElementById('pause-score').textContent = window.game.score;
+      document.getElementById('pause-score').textContent = window.game.mode === 'multiplayer' 
+        ? `P1: ${window.game.score} | P2: ${window.game.score2}` 
+        : window.game.score;
       document.getElementById('pause-length').textContent = window.game.snake.length;
       this.openModal(this.modalPause);
     } else {
@@ -373,15 +370,12 @@ class UIManager {
     }
   }
 
-  /**
-   * Starts a smooth 3.. 2.. 1.. GO! countdown overlay before initiating gameplay
-   */
   startCountdownAndPlay() {
     this.closeAllModals();
     if (!window.game) return;
 
     window.game.initGame();
-    window.game.isPaused = true; // Wait for countdown to finish
+    window.game.isPaused = true;
 
     this.countdownOverlay.classList.remove('hidden');
     let count = 3;
@@ -405,54 +399,67 @@ class UIManager {
   }
 
   /**
-   * Updates HUD scores, combo gauge, and active power-ups
+   * Updates HUD for Single Player or 2-Player Mode
    */
   updateHUD() {
     const game = window.game;
-    const mode = game ? game.mode : 'classic';
-    const currentHigh = this.highScores[mode] || 0;
+    const isMulti = game && game.mode === 'multiplayer';
 
-    if (this.highscoreDisplay) {
-      this.highscoreDisplay.textContent = currentHigh;
+    // Toggle HUD Containers
+    if (this.singlePlayerHud && this.multiplayerHud) {
+      this.singlePlayerHud.classList.toggle('hidden', isMulti);
+      this.multiplayerHud.classList.toggle('hidden', !isMulti);
     }
 
-    if (this.scoreDisplay) {
-      this.scoreDisplay.textContent = game.score;
-    }
-
-    // Revives / Hearts display
-    if (this.livesHearts) {
-      const hearts = this.livesHearts.querySelectorAll('.heart');
-      hearts.forEach((h, index) => {
-        const heartNum = index + 1; // 1, 2, 3
-        const isAlive = heartNum <= game.revivesLeft;
-        if (isAlive) {
-          h.classList.remove('lost');
-          h.textContent = '❤️';
-        } else {
-          if (!h.classList.contains('lost')) {
-            h.classList.add('lost', 'pop');
-            setTimeout(() => h.classList.remove('pop'), 400);
-          }
-          h.textContent = '🖤';
-        }
-      });
-    }
-
-    // Combo bar
-    if (this.comboMultiplier && this.comboMeterFill) {
-      this.comboMultiplier.textContent = `${game.combo.toFixed(1)}x`;
-      const fillPct = (game.comboTimer / game.maxComboTimer) * 100;
-      this.comboMeterFill.style.width = `${Math.max(0, Math.min(100, fillPct))}%`;
-
-      if (game.combo >= 2.5) {
-        this.comboMultiplier.classList.add('pop');
+    // Keyboard hints footer
+    if (this.keyboardHints) {
+      if (isMulti) {
+        this.keyboardHints.innerHTML = `
+          <span><strong style="color:#00f3ff">P1</strong>: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span>
+          <span class="divider">•</span>
+          <span><strong style="color:#ff007f">P2</strong>: <kbd>▲</kbd><kbd>▼</kbd><kbd>◀</kbd><kbd>▶</kbd></span>
+          <span class="divider">•</span>
+          <span><kbd>Space</kbd> Pause</span>
+          <span class="divider">•</span>
+          <span><kbd>R</kbd> Restart</span>
+        `;
       } else {
-        this.comboMultiplier.classList.remove('pop');
+        this.keyboardHints.innerHTML = `
+          <span><kbd>▲</kbd><kbd>▼</kbd><kbd>◀</kbd><kbd>▶</kbd> or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> to Move</span>
+          <span class="divider">•</span>
+          <span><kbd>Space</kbd> Pause</span>
+          <span class="divider">•</span>
+          <span><kbd>R</kbd> Quick Restart</span>
+        `;
       }
     }
 
-    // Active Powerups Status Pills
+    if (!game) return;
+
+    if (isMulti) {
+      // 2-Player HUD update
+      if (this.p1ScoreDisplay) this.p1ScoreDisplay.textContent = game.score;
+      if (this.p2ScoreDisplay) this.p2ScoreDisplay.textContent = game.score2;
+
+      this.updateHeartsContainer(this.p1LivesHearts, game.revivesLeft);
+      this.updateHeartsContainer(this.p2LivesHearts, game.revivesLeft2);
+    } else {
+      // Single Player HUD update
+      const currentHigh = this.highScores[game.mode] || 0;
+      if (this.highscoreDisplay) this.highscoreDisplay.textContent = currentHigh;
+      if (this.scoreDisplay) this.scoreDisplay.textContent = game.score;
+      this.updateHeartsContainer(this.livesHearts, game.revivesLeft);
+
+      // Combo bar
+      if (this.comboMultiplier && this.comboMeterFill) {
+        this.comboMultiplier.textContent = `${game.combo.toFixed(1)}x`;
+        const fillPct = (game.comboTimer / game.maxComboTimer) * 100;
+        this.comboMeterFill.style.width = `${Math.max(0, Math.min(100, fillPct))}%`;
+        this.comboMultiplier.classList.toggle('pop', game.combo >= 2.5);
+      }
+    }
+
+    // Active Powerups
     if (this.powerupStatusBar) {
       this.powerupStatusBar.innerHTML = '';
       for (const [key, timeLeft] of Object.entries(game.activePowerups)) {
@@ -460,14 +467,29 @@ class UIManager {
         const pill = document.createElement('div');
         pill.className = `powerup-pill ${timeLeft < 2.5 ? 'expiring' : ''}`;
         pill.style.borderColor = pDef.color;
-        pill.innerHTML = `
-          <span>${pDef.icon}</span>
-          <span>${pDef.name}</span>
-          <span class="p-timer">${Math.ceil(timeLeft)}s</span>
-        `;
+        pill.innerHTML = `<span>${pDef.icon}</span><span>${pDef.name}</span><span class="p-timer">${Math.ceil(timeLeft)}s</span>`;
         this.powerupStatusBar.appendChild(pill);
       }
     }
+  }
+
+  updateHeartsContainer(container, revivesLeft) {
+    if (!container) return;
+    const hearts = container.querySelectorAll('.heart');
+    hearts.forEach((h, index) => {
+      const heartNum = index + 1;
+      const isAlive = heartNum <= revivesLeft;
+      if (isAlive) {
+        h.classList.remove('lost');
+        h.textContent = '❤️';
+      } else {
+        if (!h.classList.contains('lost')) {
+          h.classList.add('lost', 'pop');
+          setTimeout(() => h.classList.remove('pop'), 400);
+        }
+        h.textContent = '🖤';
+      }
+    });
   }
 
   onComboDrop() {
@@ -475,50 +497,75 @@ class UIManager {
   }
 
   /**
-   * Displays Game Over modal with stats breakdown & high score celebration
+   * Displays Game Over modal with stats & winner presentation
    */
   showGameOver(reason) {
     const game = window.game;
     const mode = game.mode;
-    const prevBest = this.highScores[mode] || 0;
-    const isNewHigh = game.score > prevBest && game.score > 0;
 
-    if (isNewHigh) {
-      this.highScores[mode] = game.score;
-      this.saveHighScores();
+    if (mode === 'multiplayer') {
+      let winHeading = '2-PLAYER BATTLE OVER';
+      let icon = '💥';
+      if (game.winner === 'p1') {
+        winHeading = '🏆 PLAYER 1 (CYAN) WINS!';
+        icon = '👑';
+      } else if (game.winner === 'p2') {
+        winHeading = '🏆 PLAYER 2 (MAGENTA) WINS!';
+        icon = '👑';
+      }
+
+      document.getElementById('gameover-heading').textContent = winHeading;
+      document.getElementById('gameover-icon').textContent = icon;
+      document.getElementById('new-highscore-badge').classList.add('hidden');
+      document.getElementById('gameover-score').textContent = `P1: ${game.score} | P2: ${game.score2}`;
+      document.getElementById('stat-apples').textContent = `P1: ${game.applesEaten} vs P2: ${game.applesEaten2}`;
+      document.getElementById('stat-maxcombo').textContent = `Lives: ${game.revivesLeft} vs ${game.revivesLeft2}`;
+      document.getElementById('stat-length').textContent = `P1: ${game.snake.length} | P2: ${game.snake2.length}`;
+
+      const mins = Math.floor(game.timeSurvived / 60);
+      const secs = Math.floor(game.timeSurvived % 60);
+      document.getElementById('stat-time').textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+
       window.soundEngine.playHighScore();
-      window.particleSystem.createConfetti(game.displaySize, game.displaySize, 60);
+      window.particleSystem.createConfetti(game.displaySize, game.displaySize, 50);
+    } else {
+      const prevBest = this.highScores[mode] || 0;
+      const isNewHigh = game.score > prevBest && game.score > 0;
+
+      if (isNewHigh) {
+        this.highScores[mode] = game.score;
+        this.saveHighScores();
+        window.soundEngine.playHighScore();
+        window.particleSystem.createConfetti(game.displaySize, game.displaySize, 60);
+      }
+
+      this.stats.gamesPlayed++;
+      this.stats.applesEatenTotal += game.applesEaten;
+      this.stats.totalScore += game.score;
+      this.saveStats();
+
+      document.getElementById('gameover-heading').textContent = reason || 'GAME OVER';
+      document.getElementById('gameover-icon').textContent = '💥';
+      document.getElementById('new-highscore-badge').classList.toggle('hidden', !isNewHigh);
+      document.getElementById('gameover-score').textContent = game.score;
+      document.getElementById('stat-apples').textContent = game.applesEaten;
+      document.getElementById('stat-maxcombo').textContent = `${game.maxComboReached.toFixed(1)}x`;
+      document.getElementById('stat-length').textContent = game.snake.length;
+
+      const mins = Math.floor(game.timeSurvived / 60);
+      const secs = Math.floor(game.timeSurvived % 60);
+      document.getElementById('stat-time').textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+
+      this.checkAchievements();
     }
 
-    // Update Lifetime Stats
-    this.stats.gamesPlayed++;
-    this.stats.applesEatenTotal += game.applesEaten;
-    this.stats.totalScore += game.score;
-    this.saveStats();
-
-    // Populate Modal Details
-    document.getElementById('gameover-heading').textContent = reason || 'GAME OVER';
-    document.getElementById('new-highscore-badge').classList.toggle('hidden', !isNewHigh);
-    document.getElementById('gameover-score').textContent = game.score;
-    document.getElementById('stat-apples').textContent = game.applesEaten;
-    document.getElementById('stat-maxcombo').textContent = `${game.maxComboReached.toFixed(1)}x`;
-    document.getElementById('stat-length').textContent = game.snake.length;
-
-    const mins = Math.floor(game.timeSurvived / 60);
-    const secs = Math.floor(game.timeSurvived % 60);
-    document.getElementById('stat-time').textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-
-    this.checkAchievements();
     this.openModal(this.modalGameOver);
     this.updateHUD();
   }
 
-  /**
-   * Checks achievement trigger conditions
-   */
   checkAchievements() {
     const game = window.game;
-    if (!game) return;
+    if (!game || game.mode === 'multiplayer') return;
 
     if (game.applesEaten >= 1) this.unlockAchievement('first_bite');
     if (Object.keys(game.activePowerups).length > 0) this.unlockAchievement('power_hungry');

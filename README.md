@@ -33,14 +33,19 @@ A modern, responsive, and feature-packed reimagining of the classic Snake arcade
 
 ## 🎮 Game Controls
 
-### Desktop Keyboard
+### Single Player Mode
 | Key | Action |
 | :--- | :--- |
 | <kbd>▲</kbd> <kbd>▼</kbd> <kbd>◀</kbd> <kbd>▶</kbd> or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> | Steer Snake |
 | <kbd>Space</kbd> | Start Game / Pause / Resume / Replay |
 | <kbd>R</kbd> | Instant Quick Restart |
 | <kbd>M</kbd> | Toggle Sound Mute |
-| <kbd>Esc</kbd> or <kbd>P</kbd> | Open Pause Menu |
+
+### ⚔️ 2-Player Battle Mode (Single Keyboard)
+| Player | Controls | Snake Color |
+| :--- | :--- | :--- |
+| **Player 1** | <kbd>W</kbd> (Up), <kbd>A</kbd> (Left), <kbd>S</kbd> (Down), <kbd>D</kbd> (Right) | 🔵 Neon Cyan / Emerald |
+| **Player 2** | <kbd>▲</kbd> (Up), <kbd>◀</kbd> (Left), <kbd>▼</kbd> (Down), <kbd>▶</kbd> (Right) | 🔴 Neon Magenta / Coral |
 
 ### Mobile & Touch Screens
 - **Swipe Gestures**: Swipe anywhere on screen (Up, Down, Left, Right).
